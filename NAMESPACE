@@ -57,9 +57,9 @@ export("BSseq", "getMeth", "getCoverage", "getBSseq", "getStats",
        "collapseBSseq", "orderBSseq", "hasBeenSmoothed", "chrSelectBSseq",
        "BSmooth", "BSmooth.tstat", "dmrFinder", "fisherTests",
        "combineList",
-       "plotRegion", "plotManyRegions", 
+       "plotRegion", "plotManyRegions",
        "read.umtab", "read.umtab2", "read.bsmooth", "read.bismark",
-       "poissonGoodnessOfFit", "binomialGoodnessOfFit",
+       "read.gemstone", "poissonGoodnessOfFit", "binomialGoodnessOfFit",
        "data.frame2GRanges", "BSseqTstat")
 
 S3method("print", "chisqGoodnessOfFit")
@@ -72,4 +72,3 @@ S3method("plot", "BSseqTstat")
 
 exportMethods("assays")
 export("assayNames")
-
