@@ -15,7 +15,7 @@ read.gemstone <- function(files, sampleNames, rmZeroCov = FALSE, verbose = TRUE)
         }
         ptime1 <- proc.time()
         raw <- read.gemstoneFileRaw(thisfile = files[ii])
-        M <- matrix(elementMetadata(raw)[, "M2"], ncol = 1)
+        M <- matrix(elementMetadata(raw)[, "Meth"], ncol = 1)
         Cov <- matrix(elementMetadata(raw)[, "Cov"], ncol = 1)
         elementMetadata(raw) <- NULL
         out <- BSseq(gr = raw, M = M, Cov = Cov,
@@ -59,8 +59,9 @@ read.gemstoneFileRaw <- function(thisfile, verbose = TRUE){
     ## Create GRanges instance from 'out'
     gr <- GRanges(seqnames = out[["rname"]], ranges = IRanges(start = out[["pos"]], width = 1))
     out[["Cov"]] <- out[["M2"]] + out[["M1"]] + out[["M"]] + out[["C"]] + out[["N"]]
-    out[["rname"]] <- out[["pos"]] <- out[["mt"]] <- out[["M1"]] <- out[["M"]] <- out[["C"]] <- out[["N"]] <- NULL
-    ## Should leave "M2" and "Cov"
+    out[["Meth"]] <- out[["M2"]] + out[["M1"]] + out[["M"]]
+    out[["rname"]] <- out[["pos"]] <- out[["mt"]] <- out[["M2"]] <- out[["M1"]] <- out[["M"]] <- out[["C"]] <- out[["N"]] <- NULL
+    ## Should leave "Meht" and "Cov"
     out <- out[!sapply(out, is.null)]
     df <- DataFrame(out)
     elementMetadata(gr) <- df
