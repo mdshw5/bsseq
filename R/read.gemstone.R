@@ -45,10 +45,8 @@ read.gemstoneFileRaw <- function(thisfile, verbose = TRUE){
     columnHeaders <- c("rname", "mt", "pos", "M2", "M1", "M", "C", "N")
     what0 <- replicate(length(columnHeaders), character(0))
     names(what0) <- columnHeaders
-    int <- which(columnHeaders %in% c("pos", "M2", "M1", "M", "C", "N"))
+    int <- which(columnHeaders %in% c("pos", "mt", "M2", "M1", "M", "C", "N"))
     what0[int] <- replicate(length(int), integer(0))
-    null <- which(columnHeaders %in% "mt")
-    what0[null] <- replicate(length(null), NULL)
     ## Read in the file
     if (grepl("\\.gz$", thisfile))
         con <- gzfile(thisfile)
@@ -56,10 +54,12 @@ read.gemstoneFileRaw <- function(thisfile, verbose = TRUE){
         con <- file(thisfile, open = "r")
     out <- scan(file = con, what = what0, sep = "\t", skip = 1, quote = "", na.strings = "NA", quiet = TRUE)
     close(con)
+    ## Remove all non CpG rows
+    out <- out[which(out[["mt"]] %in% c(1, 4)), ]
     ## Create GRanges instance from 'out'
     gr <- GRanges(seqnames = out[["rname"]], ranges = IRanges(start = out[["pos"]], width = 1))
     out[["Cov"]] <- out[["M2"]] + out[["M1"]] + out[["M"]] + out[["C"]] + out[["N"]]
-    out[["rname"]] <- out[["pos"]] <- out[["M1"]] <- out[["M"]] <- out[["C"]] <- out[["N"]] <- NULL
+    out[["rname"]] <- out[["pos"]] <- out[["mt"]] <- out[["M1"]] <- out[["M"]] <- out[["C"]] <- out[["N"]] <- NULL
     ## Should leave "M2" and "Cov"
     out <- out[!sapply(out, is.null)]
     df <- DataFrame(out)
