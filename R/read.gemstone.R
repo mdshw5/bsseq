@@ -52,10 +52,10 @@ read.gemstoneFileRaw <- function(thisfile, verbose = TRUE){
         con <- gzfile(thisfile)
     else
         con <- file(thisfile, open = "r")
-    out <- scan(file = con, what = what0, sep = "\t", skip = 1, quote = "", na.strings = "NA", quiet = TRUE)
+    out <- scan(file = con, what = what0, sep = "\t", skip = 1, nlines = 10000, quote = "", na.strings = "NA", quiet = TRUE)
     close(con)
     ## Remove all non CpG rows
-    out <- out[which(out[["mt"]] %in% c(1, 4)), ]
+    out <- lapply(out, "[", which(out[["mt"]] %in% c(1, 4)))
     ## Create GRanges instance from 'out'
     gr <- GRanges(seqnames = out[["rname"]], ranges = IRanges(start = out[["pos"]], width = 1))
     out[["Cov"]] <- out[["M2"]] + out[["M1"]] + out[["M"]] + out[["C"]] + out[["N"]]
