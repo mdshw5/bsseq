@@ -1,4 +1,4 @@
-read.bedgraph <- function(files, sampleNames, rmZeroCov = FALSE, verbose = TRUE){
+read.bedgraph <- function(files, sampleNames, rmZeroCov = FALSE, zeroBased = TRUE, verbose = TRUE){
     ## Argument checking
     if (anyDuplicated(files)){
         stop("duplicate entries in 'files'")
@@ -14,7 +14,7 @@ read.bedgraph <- function(files, sampleNames, rmZeroCov = FALSE, verbose = TRUE)
             cat(sprintf("[read.bedgraph] Reading file '%s' ... ", files[ii]))
         }
         ptime1 <- proc.time()
-        raw <- read.bedgraphFileRaw(thisfile = files[ii])
+        raw <- read.bedgraphFileRaw(thisfile = files[ii], zeroBased = zeroBased)
         M <- matrix(elementMetadata(raw)[, "mCount"], ncol = 1)
         Cov <- M + elementMetadata(raw)[, "uCount"]
         elementMetadata(raw) <- NULL
@@ -40,7 +40,7 @@ read.bedgraph <- function(files, sampleNames, rmZeroCov = FALSE, verbose = TRUE)
     allOut
 }
 
-read.bedgraphFileRaw <- function(thisfile, verbose = TRUE){
+read.bedgraphFileRaw <- function(thisfile, zeroBased = TRUE, verbose = TRUE){
     ## Set up the 'what' argument for scan()
     columnHeaders <- c("chr", "start", "end", "mPerc", "mCount", "uCount")
     what0 <- replicate(length(columnHeaders), character(0))
@@ -57,7 +57,12 @@ read.bedgraphFileRaw <- function(thisfile, verbose = TRUE){
     out <- scan(file = con, what = what0, sep = "\t", quote = "", na.strings = "NA", quiet = TRUE)
     close(con)
     ## Create GRanges instance from 'out'
-    gr <- GRanges(seqnames = out[["chr"]], ranges = IRanges(start = out[["start"]] + 1, width = 1))
+    if (zeroBased) {
+        gr <- GRanges(seqnames = out[["chr"]], ranges = IRanges(start = out[["start"]] + 1, width = 1))
+    }
+    else if (!zeroBased) {
+        gr <- GRanges(seqnames = out[["chr"]], ranges = IRanges(start = out[["start"]], width = 1))
+    }
     out[["chr"]] <- out[["start"]] <- out[["end"]] <- NULL
     out <- out[!sapply(out, is.null)]
     df <- DataFrame(out)
